@@ -14,28 +14,20 @@ async def criar_reserva(reserva: ReservaCreate):
         campo = db.execute_query(query_campo, (reserva.id_campo,))
         if not campo:
             raise HTTPException(status_code=404, detail="Campo não encontrado")
-        
         # Verifica se o cliente existe
         query_cliente = "SELECT * FROM Cliente WHERE CPF = %s"
         cliente = db.execute_query(query_cliente, (reserva.cpf_cliente,))
         if not cliente:
             raise HTTPException(status_code=404, detail="Cliente não encontrado")
-        
-        # Gera próximo ID de reserva
-        query_max = "SELECT COALESCE(MAX(Id_Reserva), 0) + 1 AS next_id FROM Reserva"
-        max_result = db.execute_query(query_max)
-        next_id = max_result[0]['next_id'] if max_result else 1
-        
         query = """
-            INSERT INTO Reserva (Id_Reserva, Data, Quant_Horas, Status, CPF_Cliente, Id_Campo, Id_Usuario_Cadastrou)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO Reserva (Data, Quant_Horas, Status, CPF_Cliente, Id_Campo)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING Id_Reserva, Data, Quant_Horas, Status, CPF_Cliente, Id_Campo, Id_Usuario_Cadastrou
         """
         result = db.execute_query(query, (
-            next_id, reserva.data, reserva.quant_horas, reserva.status,
-            reserva.cpf_cliente, reserva.id_campo, reserva.id_usuario_cadastrou
+            reserva.data, reserva.quant_horas, reserva.status,
+            reserva.cpf_cliente, reserva.id_campo
         ))
-        
         if result:
             return ReservaResponse(**result[0])
         raise HTTPException(status_code=500, detail="Erro ao criar reserva")

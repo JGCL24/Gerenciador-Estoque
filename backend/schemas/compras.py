@@ -8,7 +8,7 @@ class CompraBase(BaseModel):
     cpf_cliente: str
 
 class CompraCreate(CompraBase):
-    id_usuario_cadastrou: int
+    pass
 
 class CompraResponse(BaseModel):
     id_compra: int

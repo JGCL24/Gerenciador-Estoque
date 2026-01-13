@@ -6,7 +6,7 @@ class UsuarioBase(BaseModel):
     tipo_usuario: str
 
 class UsuarioCreate(UsuarioBase):
-    id_usuario: int
+    pass
 
 class UsuarioResponse(BaseModel):
     id_usuario: int

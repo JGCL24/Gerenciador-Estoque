@@ -14,16 +14,14 @@ async def criar_cliente(cliente: ClienteCreate):
         existing = db.execute_query(query_check, (cliente.cpf,))
         if existing:
             raise HTTPException(status_code=400, detail="Cliente com este CPF já existe")
-        
         query = """
-            INSERT INTO Cliente (CPF, Nome, Email, Tipo, Id_Usuario_Cadastrou)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO Cliente (CPF, Nome, Email, Tipo)
+            VALUES (%s, %s, %s, %s)
             RETURNING CPF, Nome, Email, Tipo, Id_Usuario_Cadastrou
         """
         result = db.execute_query(query, (
-            cliente.cpf, cliente.nome, cliente.email, cliente.tipo, cliente.id_usuario_cadastrou
+            cliente.cpf, cliente.nome, cliente.email, cliente.tipo
         ))
-        
         if result:
             return ClienteResponse(**result[0])
         raise HTTPException(status_code=500, detail="Erro ao criar cliente")

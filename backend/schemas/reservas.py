@@ -10,7 +10,7 @@ class ReservaBase(BaseModel):
     id_campo: int
 
 class ReservaCreate(ReservaBase):
-    id_usuario_cadastrou: int
+    pass
 
 class ReservaResponse(BaseModel):
     id_reserva: int

@@ -10,10 +10,15 @@ class Database:
     def connect(self):
         """Cria conexão com o banco de dados"""
         try:
+            # Estabelece a conexão usando as configurações do config.py
             self.connection = psycopg2.connect(**config.DB_CONFIG)
+            # --- ESTA É A LINHA QUE RESOLVE O ERRO DE CODEC ---
+            self.connection.set_client_encoding('UTF8')
+            # -------------------------------------------------
             return self.connection
         except Exception as e:
-            print(f"Erro ao conectar ao banco: {e}")
+            # O encode('utf-8', errors='replace') garante que o print não trave o terminal
+            print(f"Erro ao conectar ao banco: {str(e).encode('utf-8', errors='replace')}")
             raise
     
     def get_connection(self):

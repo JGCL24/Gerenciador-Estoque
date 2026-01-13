@@ -9,7 +9,7 @@ class ProdutoBase(BaseModel):
     quant_min_estoque: int
 
 class ProdutoCreate(ProdutoBase):
-    id_admin_cadastrou: int
+    pass
 
 class ProdutoResponse(BaseModel):
     id_produto: int

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List
 from database import db
 from schemas import UsuarioCreate, UsuarioResponse, UsuarioLogin
-import hashlib
+import bcrypt
 
 router = APIRouter()
 
@@ -10,24 +10,17 @@ router = APIRouter()
 async def criar_usuario(usuario: UsuarioCreate):
     """Cria um novo usuário"""
     try:
-        # Verifica se já existe usuário com mesmo ID
-        query_check = "SELECT * FROM Usuario WHERE Id_Usuario = %s"
-        existing = db.execute_query(query_check, (usuario.id_usuario,))
-        if existing:
-            raise HTTPException(status_code=400, detail="Usuário com este ID já existe")
-        
-        # Hash da senha (simples, em produção usar bcrypt)
-        senha_hash = hashlib.sha256(usuario.senha.encode()).hexdigest()
-        
+        # Hash seguro da senha usando bcrypt
+        senha_hash = bcrypt.hashpw(usuario.senha.encode(), bcrypt.gensalt())
+
         query = """
-            INSERT INTO Usuario (Id_Usuario, Nome, Senha, Tipo_Usuario)
-            VALUES (%s, %s, %s, %s)
-            RETURNING Id_Usuario, Nome, Tipo_Usuario
+            INSERT INTO usuario (nome, senha, tipo_usuario)
+            VALUES (%s, %s, %s)
+            RETURNING id_usuario, nome, tipo_usuario
         """
         result = db.execute_query(query, (
-            usuario.id_usuario, usuario.nome, senha_hash, usuario.tipo_usuario
+            usuario.nome, senha_hash, usuario.tipo_usuario
         ))
-        
         if result:
             return UsuarioResponse(**result[0])
         raise HTTPException(status_code=500, detail="Erro ao criar usuário")
@@ -40,7 +33,7 @@ async def criar_usuario(usuario: UsuarioCreate):
 async def listar_usuarios():
     """Lista todos os usuários"""
     try:
-        query = "SELECT Id_Usuario, Nome, Tipo_Usuario FROM Usuario"
+        query = "SELECT id_usuario, nome, tipo_usuario FROM usuario"
         result = db.execute_query(query)
         return [UsuarioResponse(**row) for row in result]
     except Exception as e:
@@ -50,7 +43,7 @@ async def listar_usuarios():
 async def obter_usuario(id_usuario: int):
     """Obtém um usuário por ID"""
     try:
-        query = "SELECT Id_Usuario, Nome, Tipo_Usuario FROM Usuario WHERE Id_Usuario = %s"
+        query = "SELECT id_usuario, nome, tipo_usuario FROM usuario WHERE id_usuario = %s"
         result = db.execute_query(query, (id_usuario,))
         if not result:
             raise HTTPException(status_code=404, detail="Usuário não encontrado")
@@ -65,18 +58,18 @@ async def atualizar_usuario(id_usuario: int, usuario: UsuarioCreate):
     """Atualiza um usuário"""
     try:
         # Verifica se existe
-        query_check = "SELECT * FROM Usuario WHERE Id_Usuario = %s"
+        query_check = "SELECT * FROM usuario WHERE id_usuario = %s"
         existing = db.execute_query(query_check, (id_usuario,))
         if not existing:
             raise HTTPException(status_code=404, detail="Usuário não encontrado")
         
-        senha_hash = hashlib.sha256(usuario.senha.encode()).hexdigest()
+        senha_hash = bcrypt.hashpw(usuario.senha.encode(), bcrypt.gensalt())
         
         query = """
-            UPDATE Usuario 
-            SET Nome = %s, Senha = %s, Tipo_Usuario = %s
-            WHERE Id_Usuario = %s
-            RETURNING Id_Usuario, Nome, Tipo_Usuario
+            UPDATE usuario 
+            SET nome = %s, senha = %s, tipo_usuario = %s
+            WHERE id_usuario = %s
+            RETURNING id_usuario, nome, tipo_usuario
         """
         result = db.execute_query(query, (
             usuario.nome, senha_hash, usuario.tipo_usuario, id_usuario
@@ -94,12 +87,12 @@ async def atualizar_usuario(id_usuario: int, usuario: UsuarioCreate):
 async def deletar_usuario(id_usuario: int):
     """Deleta um usuário"""
     try:
-        query_check = "SELECT * FROM Usuario WHERE Id_Usuario = %s"
+        query_check = "SELECT * FROM usuario WHERE id_usuario = %s"
         existing = db.execute_query(query_check, (id_usuario,))
         if not existing:
             raise HTTPException(status_code=404, detail="Usuário não encontrado")
         
-        query = "DELETE FROM Usuario WHERE Id_Usuario = %s"
+        query = "DELETE FROM usuario WHERE id_usuario = %s"
         db.execute_query(query, (id_usuario,), fetch=False)
         return None
     except HTTPException:
@@ -111,16 +104,16 @@ async def deletar_usuario(id_usuario: int):
 async def login(credentials: UsuarioLogin):
     """Autentica um usuário"""
     try:
-        senha_hash = hashlib.sha256(credentials.senha.encode()).hexdigest()
-        query = """
-            SELECT Id_Usuario, Nome, Tipo_Usuario 
-            FROM Usuario 
-            WHERE Id_Usuario = %s AND Senha = %s
-        """
-        result = db.execute_query(query, (credentials.id_usuario, senha_hash))
+        # Busca usuário pelo ID
+        query = "SELECT id_usuario, nome, tipo_usuario, senha FROM usuario WHERE id_usuario = %s"
+        result = db.execute_query(query, (credentials.id_usuario,))
         if not result:
             raise HTTPException(status_code=401, detail="Credenciais inválidas")
-        return {"message": "Login bem-sucedido", "usuario": UsuarioResponse(**result[0])}
+        usuario_db = result[0]
+        # Verifica senha usando bcrypt
+        if not bcrypt.checkpw(credentials.senha.encode(), usuario_db['senha']):
+            raise HTTPException(status_code=401, detail="Credenciais inválidas")
+        return {"message": "Login bem-sucedido", "usuario": UsuarioResponse(**usuario_db)}
     except HTTPException:
         raise
     except Exception as e:

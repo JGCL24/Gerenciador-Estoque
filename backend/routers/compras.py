@@ -14,22 +14,14 @@ async def criar_compra(compra: CompraCreate):
         cliente = db.execute_query(query_cliente, (compra.cpf_cliente,))
         if not cliente:
             raise HTTPException(status_code=404, detail="Cliente não encontrado")
-        
-        # Gera próximo ID de compra
-        query_max = "SELECT COALESCE(MAX(Id_Compra), 0) + 1 AS next_id FROM Compra"
-        max_result = db.execute_query(query_max)
-        next_id = max_result[0]['next_id'] if max_result else 1
-        
         query = """
-            INSERT INTO Compra (Id_Compra, Data, Valor_Total, CPF_Cliente, Id_Usuario_Cadastrou)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO Compra (Data, Valor_Total, CPF_Cliente)
+            VALUES (%s, %s, %s)
             RETURNING Id_Compra, Data, Valor_Total, CPF_Cliente, Id_Usuario_Cadastrou
         """
         result = db.execute_query(query, (
-            next_id, compra.data, compra.valor_total,
-            compra.cpf_cliente, compra.id_usuario_cadastrou
+            compra.data, compra.valor_total, compra.cpf_cliente
         ))
-        
         if result:
             return CompraResponse(**result[0])
         raise HTTPException(status_code=500, detail="Erro ao criar compra")

@@ -9,27 +9,14 @@ router = APIRouter()
 async def criar_produto(produto: ProdutoCreate):
     """Cria um novo produto"""
     try:
-        # Verifica se o admin existe
-        query_admin = "SELECT * FROM Administrador WHERE Id_Usuario = %s"
-        admin = db.execute_query(query_admin, (produto.id_admin_cadastrou,))
-        if not admin:
-            raise HTTPException(status_code=404, detail="Administrador não encontrado")
-        
-        # Gera próximo ID de produto
-        query_max = "SELECT COALESCE(MAX(Id_Produto), 0) + 1 AS next_id FROM Produto"
-        max_result = db.execute_query(query_max)
-        next_id = max_result[0]['next_id'] if max_result else 1
-        
         query = """
-            INSERT INTO Produto (Id_Produto, Nome, Preco, Validade, Quant_Min_Estoque, Id_Admin_Cadastrou)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO Produto (Nome, Preco, Validade, Quant_Min_Estoque)
+            VALUES (%s, %s, %s, %s)
             RETURNING Id_Produto, Nome, Preco, Validade, Quant_Min_Estoque, Id_Admin_Cadastrou
         """
         result = db.execute_query(query, (
-            next_id, produto.nome, produto.preco, produto.validade,
-            produto.quant_min_estoque, produto.id_admin_cadastrou
+            produto.nome, produto.preco, produto.validade, produto.quant_min_estoque
         ))
-        
         if result:
             return ProdutoResponse(**result[0])
         raise HTTPException(status_code=500, detail="Erro ao criar produto")

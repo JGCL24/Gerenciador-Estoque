@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+import re
 from typing import List
 from database import db
 from schemas import CampoCreate, CampoResponse
@@ -9,6 +10,10 @@ router = APIRouter()
 async def criar_campo(campo: CampoCreate):
     """Cria um novo campo"""
     try:
+        # Validação simples para evitar SQL injection e caracteres inválidos
+        if not isinstance(campo.status, str) or not re.match(r'^[\w\s\-]+$', campo.status):
+            raise HTTPException(status_code=400, detail="Status inválido. Use apenas letras, números, espaço e hífen.")
+
         query = """
             INSERT INTO Campo (Numero, Status)
             VALUES (%s, %s)
@@ -52,6 +57,10 @@ async def obter_campo(id_campo: int):
 async def atualizar_campo(id_campo: int, campo: CampoCreate):
     """Atualiza um campo"""
     try:
+        # Validação simples para evitar SQL injection e caracteres inválidos
+        if not isinstance(campo.status, str) or not re.match(r'^[\w\s\-]+$', campo.status):
+            raise HTTPException(status_code=400, detail="Status inválido. Use apenas letras, números, espaço e hífen.")
+
         query_check = "SELECT * FROM Campo WHERE Id_Campo = %s"
         existing = db.execute_query(query_check, (id_campo,))
         if not existing:

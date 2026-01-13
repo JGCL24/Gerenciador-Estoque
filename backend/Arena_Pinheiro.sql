@@ -1,374 +1,364 @@
+
 BEGIN;
 
 
-CREATE TABLE Cliente
+CREATE TABLE cliente
 (
-    CPF character varying,
-    Nome character varying,
-    Email character varying,
-    Tipo character varying,
-    Id_Usuario_Cadastrou integer,
-    PRIMARY KEY (CPF)
+    id_cliente SERIAL PRIMARY KEY,
+    cpf character varying UNIQUE,
+    nome character varying,
+    email character varying,
+    tipo character varying,
+    id_usuario_cadastrou integer
 );
 
-CREATE TABLE Usuario
-(
-    Id_Usuario integer,
-    Nome character varying,
-    Senha character varying,
-    Tipo_Usuario character varying,
-    PRIMARY KEY (Id_Usuario)
+CREATE TABLE usuario (
+    id_usuario SERIAL PRIMARY KEY, 
+    nome VARCHAR(255) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    tipo_usuario VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE Item_Comanda
+CREATE TABLE item_comanda
 (
-    Id_Comanda integer,
-    Id_Produto integer,
-    Quantidade integer,
-    Preco_Unitario numeric,
-    PRIMARY KEY (Id_Comanda, Id_Produto)
+    id_item_comanda SERIAL PRIMARY KEY,
+    id_comanda integer,
+    id_produto integer,
+    quantidade integer,
+    preco_unitario numeric
 );
 
-CREATE TABLE Pag_Comanda
+CREATE TABLE pag_comanda
 (
-    Id_Pagamento integer NOT NULL,
-    Id_Comanda integer NOT NULL,
-    PRIMARY KEY (Id_Pagamento),
-    UNIQUE (Id_Comanda)
+    id_pag_comanda SERIAL PRIMARY KEY,
+    id_pagamento integer NOT NULL,
+    id_comanda integer NOT NULL,
+    UNIQUE (id_comanda)
 );
 
-CREATE TABLE Pagamento
+CREATE TABLE pagamento
 (
-    Id_Pagamento integer NOT NULL,
-    Valor numeric,
-    Forma character varying,
-    Tipo_Pagamento character varying,
-    Id_Usuario_Cadastrou integer,
-    PRIMARY KEY (Id_Pagamento)
+    id_pagamento SERIAL PRIMARY KEY,
+    valor numeric,
+    forma character varying,
+    tipo_pagamento character varying,
+    id_usuario_cadastrou integer NULL
 );
 
-CREATE TABLE Campo
+CREATE TABLE campo
 (
-    Id_Campo integer,
-    Numero integer,
-    Status character varying,
-    PRIMARY KEY (Id_Campo)
+    id_campo SERIAL PRIMARY KEY,
+    numero integer,
+    status character varying
 );
 
-CREATE TABLE Reserva
+CREATE TABLE reserva
 (
-    Id_Reserva integer NOT NULL,
-    Data date,
-    Quant_Horas integer,
-    Status character varying,
-    CPF_Cliente character varying,
-    Id_Campo integer,
-    Id_Usuario_Cadastrou integer,
-    PRIMARY KEY (Id_Reserva)
+    id_reserva SERIAL PRIMARY KEY,
+    data date,
+    quant_horas integer,
+    status character varying,
+    cpf_cliente character varying,
+    id_campo integer,
+    id_usuario_cadastrou integer NULL
 );
 
-CREATE TABLE Pag_Compra
+CREATE TABLE pag_compra
 (
-    Id_Pagamento integer,
-    Id_Compra integer,
-    PRIMARY KEY (Id_Pagamento),
-    UNIQUE (Id_Compra)
+    id_pag_compra SERIAL PRIMARY KEY,
+    id_pagamento integer,
+    id_compra integer,
+    UNIQUE (id_compra)
 );
 
-CREATE TABLE Pag_Reserva
+CREATE TABLE pag_reserva
 (
-    Id_Pagamento integer,
-    Id_Reserva integer,
-    CPF_Cliente character varying,
-    Porcentagem real,
-    PRIMARY KEY (Id_Pagamento),
-    UNIQUE (Id_Reserva)
+    id_pag_reserva SERIAL PRIMARY KEY,
+    id_pagamento integer,
+    id_reserva integer,
+    cpf_cliente character varying,
+    porcentagem real,
+    UNIQUE (id_reserva)
 );
 
-CREATE TABLE Comanda
+CREATE TABLE comanda
 (
-    Id_Comanda integer NOT NULL,
-    Data date,
-    Status character varying,
-    Numero_Mesa integer,
-    CPF_Cliente character varying,
-    Id_Funcionario integer,
-    PRIMARY KEY (Id_Comanda),
-    UNIQUE (Numero_Mesa)
+    id_comanda SERIAL PRIMARY KEY,
+    data date,
+    status character varying,
+    numero_mesa integer,
+    cpf_cliente character varying,
+    id_funcionario integer NULL,
+    UNIQUE (numero_mesa)
 );
 
-CREATE TABLE Mesa
+CREATE TABLE mesa
 (
-    Numero integer NOT NULL,
-    Status character varying,
-    PRIMARY KEY (Numero)
+    id_mesa SERIAL PRIMARY KEY,
+    numero integer NOT NULL UNIQUE,
+    status character varying
 );
 
-CREATE TABLE Item_Compra
+CREATE TABLE item_compra
 (
-    Id_Compra integer,
-    Id_Produto integer,
-    Quantidade integer,
-    Preco_Unitario numeric,
-    PRIMARY KEY (Id_Compra, Id_Produto)
+    id_item_compra SERIAL PRIMARY KEY,
+    id_compra integer,
+    id_produto integer,
+    quantidade integer,
+    preco_unitario numeric
 );
 
-CREATE TABLE Compra
+CREATE TABLE compra
 (
-    Id_Compra integer NOT NULL,
-    Data date,
-    Valor_Total numeric,
-    CPF_Cliente character varying,
-    Id_Usuario_Cadastrou integer,
-    PRIMARY KEY (Id_Compra)
+    id_compra SERIAL PRIMARY KEY,
+    data date,
+    valor_total numeric,
+    cpf_cliente character varying,
+    id_usuario_cadastrou integer NULL
 );
 
-CREATE TABLE Funcionario
+CREATE TABLE funcionario
 (
-    Id_Usuario integer,
-    Id_Admin_Cadastrou integer,
-    PRIMARY KEY (Id_Usuario)
+    id_usuario integer,
+    id_admin_cadastrou integer NULL,
+    PRIMARY KEY (id_usuario)
 );
 
-CREATE TABLE Administrador
+CREATE TABLE administrador
 (
-    Id_Usuario integer,
-    PRIMARY KEY (Id_Usuario)
+    id_usuario integer PRIMARY KEY
 );
 
-CREATE TABLE Produto
+CREATE TABLE produto
 (
-    Id_Produto integer NOT NULL,
-    Nome character varying,
-    Preco numeric,
-    Validade date,
-    Quant_Min_Estoque integer,
-    Id_Admin_Cadastrou integer,
-    PRIMARY KEY (Id_Produto)
+    id_produto SERIAL PRIMARY KEY,
+    nome character varying,
+    preco numeric,
+    validade date,
+    quant_min_estoque integer,
+    id_admin_cadastrou integer NULL
 );
 
-CREATE TABLE Estoque
+CREATE TABLE estoque
 (
-    Id_Estoque integer,
-    Id_Produto integer,
-    Quant_Present integer,
-    PRIMARY KEY (Id_Estoque),
-    UNIQUE (Id_Produto)
+    id_estoque SERIAL PRIMARY KEY,
+    id_produto integer,
+    quant_present integer,
+    UNIQUE (id_produto)
 );
 
-CREATE TABLE Movimenta
+CREATE TABLE movimenta
 (
-    Id_Movimenta integer,
-    Id_Estoque integer,
-    Tipo character varying,
-    Quantidade integer,
-    Data date,
-    PRIMARY KEY (Id_Movimenta)
+    id_movimenta SERIAL PRIMARY KEY,
+    id_estoque integer,
+    tipo character varying,
+    quantidade integer,
+    data date
 );
 
-ALTER TABLE Cliente
-    ADD FOREIGN KEY (Id_Usuario_Cadastrou)
-    REFERENCES Usuario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE cliente
+    ADD FOREIGN KEY (id_usuario_cadastrou)
+    REFERENCES usuario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Item_Comanda
-    ADD FOREIGN KEY (Id_Produto)
-    REFERENCES Produto (Id_Produto) MATCH SIMPLE
+ALTER TABLE item_comanda
+    ADD FOREIGN KEY (id_produto)
+    REFERENCES produto (id_produto) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Item_Comanda
-    ADD FOREIGN KEY (Id_Comanda)
-    REFERENCES Comanda (Id_Comanda) MATCH SIMPLE
+ALTER TABLE item_comanda
+    ADD FOREIGN KEY (id_comanda)
+    REFERENCES comanda (id_comanda) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pag_Comanda
-    ADD FOREIGN KEY (Id_Comanda)
-    REFERENCES Comanda (Id_Comanda) MATCH SIMPLE
+ALTER TABLE pag_comanda
+    ADD FOREIGN KEY (id_comanda)
+    REFERENCES comanda (id_comanda) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pag_Comanda
-    ADD FOREIGN KEY (Id_Pagamento)
-    REFERENCES Pagamento (Id_Pagamento) MATCH SIMPLE
+ALTER TABLE pag_comanda
+    ADD FOREIGN KEY (id_pagamento)
+    REFERENCES pagamento (id_pagamento) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pagamento
-    ADD FOREIGN KEY (Id_Usuario_Cadastrou)
-    REFERENCES Usuario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE pagamento
+    ADD FOREIGN KEY (id_usuario_cadastrou)
+    REFERENCES usuario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Reserva
-    ADD FOREIGN KEY (Id_Usuario_Cadastrou)
-    REFERENCES Usuario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE reserva
+    ADD FOREIGN KEY (id_usuario_cadastrou)
+    REFERENCES usuario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Reserva
-    ADD FOREIGN KEY (Id_Campo)
-    REFERENCES Campo (Id_Campo) MATCH SIMPLE
+ALTER TABLE reserva
+    ADD FOREIGN KEY (id_campo)
+    REFERENCES campo (id_campo) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Reserva
-    ADD FOREIGN KEY (CPF_Cliente)
-    REFERENCES Cliente (CPF) MATCH SIMPLE
+ALTER TABLE reserva
+    ADD FOREIGN KEY (cpf_cliente)
+    REFERENCES cliente (cpf) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pag_Compra
-    ADD FOREIGN KEY (Id_Pagamento)
-    REFERENCES Pagamento (Id_Pagamento) MATCH SIMPLE
+ALTER TABLE pag_compra
+    ADD FOREIGN KEY (id_pagamento)
+    REFERENCES pagamento (id_pagamento) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pag_Compra
-    ADD FOREIGN KEY (Id_Compra)
-    REFERENCES Compra (Id_Compra) MATCH SIMPLE
+ALTER TABLE pag_compra
+    ADD FOREIGN KEY (id_compra)
+    REFERENCES compra (id_compra) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pag_Reserva
-    ADD FOREIGN KEY (Id_Reserva)
-    REFERENCES Reserva (Id_Reserva) MATCH SIMPLE
+ALTER TABLE pag_reserva
+    ADD FOREIGN KEY (id_reserva)
+    REFERENCES reserva (id_reserva) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Pag_Reserva
-    ADD FOREIGN KEY (Id_Pagamento)
-    REFERENCES Pagamento (Id_Pagamento) MATCH SIMPLE
+ALTER TABLE pag_reserva
+    ADD FOREIGN KEY (id_pagamento)
+    REFERENCES pagamento (id_pagamento) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Comanda
-    ADD FOREIGN KEY (CPF_Cliente)
-    REFERENCES Cliente (CPF) MATCH SIMPLE
+ALTER TABLE comanda
+    ADD FOREIGN KEY (cpf_cliente)
+    REFERENCES cliente (cpf) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Comanda
-    ADD FOREIGN KEY (Id_Funcionario)
-    REFERENCES Funcionario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE comanda
+    ADD FOREIGN KEY (id_funcionario)
+    REFERENCES funcionario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Comanda
-    ADD FOREIGN KEY (Numero_Mesa)
-    REFERENCES Mesa (Numero) MATCH SIMPLE
+ALTER TABLE comanda
+    ADD FOREIGN KEY (numero_mesa)
+    REFERENCES mesa (numero) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Item_Compra
-    ADD FOREIGN KEY (Id_Compra)
-    REFERENCES Compra (Id_Compra) MATCH SIMPLE
+ALTER TABLE item_compra
+    ADD FOREIGN KEY (id_compra)
+    REFERENCES compra (id_compra) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Item_Compra
-    ADD FOREIGN KEY (Id_Produto)
-    REFERENCES Produto (Id_Produto) MATCH SIMPLE
+ALTER TABLE item_compra
+    ADD FOREIGN KEY (id_produto)
+    REFERENCES produto (id_produto) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Compra
-    ADD FOREIGN KEY (Id_Usuario_Cadastrou)
-    REFERENCES Usuario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE compra
+    ADD FOREIGN KEY (id_usuario_cadastrou)
+    REFERENCES usuario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Compra
-    ADD FOREIGN KEY (CPF_Cliente)
-    REFERENCES Cliente (CPF) MATCH SIMPLE
+ALTER TABLE compra
+    ADD FOREIGN KEY (cpf_cliente)
+    REFERENCES cliente (cpf) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Funcionario
-    ADD FOREIGN KEY (Id_Usuario)
-    REFERENCES Usuario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE funcionario
+    ADD FOREIGN KEY (id_usuario)
+    REFERENCES usuario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Funcionario
-    ADD FOREIGN KEY (Id_Admin_Cadastrou)
-    REFERENCES Administrador (Id_Usuario) MATCH SIMPLE
+ALTER TABLE funcionario
+    ADD FOREIGN KEY (id_admin_cadastrou)
+    REFERENCES administrador (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Administrador
-    ADD FOREIGN KEY (Id_Usuario)
-    REFERENCES Usuario (Id_Usuario) MATCH SIMPLE
+ALTER TABLE administrador
+    ADD FOREIGN KEY (id_usuario)
+    REFERENCES usuario (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Produto
-    ADD FOREIGN KEY (Id_Admin_Cadastrou)
-    REFERENCES Administrador (Id_Usuario) MATCH SIMPLE
+ALTER TABLE produto
+    ADD FOREIGN KEY (id_admin_cadastrou)
+    REFERENCES administrador (id_usuario) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Estoque
-    ADD FOREIGN KEY (Id_Produto)
-    REFERENCES Produto (Id_Produto) MATCH SIMPLE
+ALTER TABLE estoque
+    ADD FOREIGN KEY (id_produto)
+    REFERENCES produto (id_produto) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE Movimenta
-    ADD FOREIGN KEY (Id_Estoque)
-    REFERENCES Estoque (Id_Estoque) MATCH SIMPLE
+ALTER TABLE movimenta
+    ADD FOREIGN KEY (id_estoque)
+    REFERENCES estoque (id_estoque) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;

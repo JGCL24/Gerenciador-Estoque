@@ -7,7 +7,7 @@ class PagamentoBase(BaseModel):
     tipo_pagamento: str
 
 class PagamentoCreate(PagamentoBase):
-    id_usuario_cadastrou: int
+    pass
 
 class PagamentoResponse(BaseModel):
     id_pagamento: int

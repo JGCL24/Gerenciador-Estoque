@@ -13,21 +13,14 @@ router = APIRouter()
 async def criar_pagamento(pagamento: PagamentoCreate):
     """Cria um novo pagamento"""
     try:
-        # Gera próximo ID de pagamento
-        query_max = "SELECT COALESCE(MAX(Id_Pagamento), 0) + 1 AS next_id FROM Pagamento"
-        max_result = db.execute_query(query_max)
-        next_id = max_result[0]['next_id'] if max_result else 1
-        
         query = """
-            INSERT INTO Pagamento (Id_Pagamento, Valor, Forma, Tipo_Pagamento, Id_Usuario_Cadastrou)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO Pagamento (Valor, Forma, Tipo_Pagamento)
+            VALUES (%s, %s, %s)
             RETURNING Id_Pagamento, Valor, Forma, Tipo_Pagamento, Id_Usuario_Cadastrou
         """
         result = db.execute_query(query, (
-            next_id, pagamento.valor, pagamento.forma,
-            pagamento.tipo_pagamento, pagamento.id_usuario_cadastrou
+            pagamento.valor, pagamento.forma, pagamento.tipo_pagamento
         ))
-        
         if result:
             return PagamentoResponse(**result[0])
         raise HTTPException(status_code=500, detail="Erro ao criar pagamento")

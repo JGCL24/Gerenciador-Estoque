@@ -8,7 +8,7 @@ class ClienteBase(BaseModel):
     tipo: str
 
 class ClienteCreate(ClienteBase):
-    id_usuario_cadastrou: int
+    pass
 
 class ClienteResponse(ClienteBase):
     id_usuario_cadastrou: Optional[int] = None
