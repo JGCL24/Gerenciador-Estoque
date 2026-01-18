@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import select
 from typing import List
+from sqlalchemy.exc import IntegrityError
 
 from .database import create_db_and_tables, get_session
 from .models import Product, ProductCreate, ProductUpdate, Movement, MovementCreate
@@ -13,7 +14,7 @@ app = FastAPI(title="Gerenciador de Estoque API")
 produtos_router = APIRouter(prefix="/products", tags=["Products"])
 movimentacoes_router = APIRouter(prefix="/movements", tags=["Movements"])
 
-origins = ["http://localhost:5173", "http://localhost:3000"]
+origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -112,10 +113,15 @@ def deletar_produto(*, product_id: int, session=Depends(get_session)):
     product = session.get(Product, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+    
+    statement = select(Movement).where(Movement.product_id == product_id)
+    results = session.exec(statement)
+    if results.first():
+         raise HTTPException(status_code=400, detail="Não é possível deletar o produto pois existem movimentações associadas a ele.")
+
     session.delete(product)
     session.commit()
     return None
-
 
 # ==================== ENDPOINTS DE MOVIMENTAÇÕES ====================
 
@@ -164,7 +170,6 @@ def criar_movimentacao(*, movement: MovementCreate, session=Depends(get_session)
 
     # Retornar como um novo Movement para evitar problemas de detached objects
     return Movement.model_validate(db_movement)
-
 
 # Registrar os routers
 app.include_router(produtos_router)
