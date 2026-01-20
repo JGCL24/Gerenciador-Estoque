@@ -188,14 +188,32 @@ O projeto conta com uma pipeline configurada em `.github/workflows/ci.yml` que:
 3. Só permite merge se tudo passar.
 
 ### Deploy Público (Ngrok)
-Para expor seu ambiente local para a internet rapidamente:
+Para expor seu ambiente local para a internet de forma rápida:
 
-1. Instale o [Ngrok](https://ngrok.com/).
-2. Execute o script de deploy facilitado:
-   ```powershell
-   .\deploy-ngrok.ps1
+1. **Inicie o Ngrok** para o Backend:
+   Abra um terminal e execute:
+   ```bash
+   ngrok http 8000
    ```
-3. Sua aplicação estará acessível mundialmente via URL segura HTTPS.
+   Copie a URL HTTPS gerada (ex: `https://xxxx.ngrok-free.app`).
+
+2. **Configure o Frontend**:
+   Abra o arquivo `frontend/src/api.js`.
+   Substitua o valor de `API_BASE` pela URL que você copiou do Ngrok.
+
+3. **Configure o Backend**:
+   No arquivo `backend/app/main.py`, verifique se o **CORS** está configurado para permitir todas as origens (`allow_origins=["*"]`).
+
+4. **Execute a Aplicação**:
+   Reconstrua e inicie os containers para aplicar as mudanças:
+   ```bash
+   docker-compose up -d --build
+   ```
+
+5. **Acesse**:
+   Sua aplicação estará rodando localmente, mas conectada ao backend exposto.
+   - Frontend: `http://localhost` (Acesse por aqui)
+   - Backend (Link Público): `https://xxxx.ngrok-free.app`
 
 ---
 
